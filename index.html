@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TarotAI — Kullanıcı Araştırması</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0d0d1a;
+      --parchment: #f5f0e8;
+      --gold: #c9a84c;
+      --gold-dim: #8a6f32;
+      --mist: #e8e2d8;
+      --deep: #1a1630;
+      --accent: #7c5cbf;
+      --accent-soft: rgba(124, 92, 191, 0.12);
+      --card-bg: rgba(255, 252, 245, 0.96);
+      --shadow: 0 8px 40px rgba(13, 13, 26, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--deep);
+      font-family: 'Crimson Pro', Georgia, serif;
+      color: var(--ink);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ── Stars background ── */
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle var(--d, 3s) ease-in-out infinite alternate;
+      opacity: var(--o, 0.4);
+    }
+
+    @keyframes twinkle {
+      from {
+        opacity: var(--o, 0.3);
+        transform: scale(1);
+      }
+
+      to {
+        opacity: calc(var(--o, 0.3) * 0.3);
+        transform: scale(0.7);
+      }
+    }
+
+    /* ── Layout ── */
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+      animation: fadeDown 0.8s ease both;
+    }
+
+    .glyph {
+      font-size: 52px;
+      display: block;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 0 20px rgba(201, 168, 76, 0.5));
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    .header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(28px, 6vw, 42px);
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      text-shadow: 0 0 30px rgba(201, 168, 76, 0.3);
+      margin-bottom: 6px;
+    }
+
+    .header .sub {
+      font-size: 16px;
+      color: rgba(245, 240, 232, 0.65);
+      font-style: italic;
+      letter-spacing: 0.03em;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px auto 0;
+      max-width: 320px;
+      color: var(--gold-dim);
+      font-size: 18px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    }
+
+    /* ── Progress ── */
+    .progress-wrap {
+      margin-bottom: 36px;
+      animation: fadeDown 0.8s 0.1s ease both;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: rgba(245, 240, 232, 0.5);
+      margin-bottom: 8px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.05em;
+    }
+
+    .progress-bar {
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+      border-radius: 99px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 8px rgba(201, 168, 76, 0.4);
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      opacity: 0.8;
+    }
+
+    /* ── Question card ── */
+    .q-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 32px 36px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(201, 168, 76, 0.15);
+      animation: fadeUp 0.5s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .q-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0.4;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .q-num {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--gold-dim);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .q-text {
+      font-size: 19px;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
+
+    .q-hint {
+      font-size: 13px;
+      color: #7a7570;
+      font-style: italic;
+      margin-bottom: 18px;
+      margin-top: -14px;
+    }
+
+    /* ── Info box ── */
+    .info-box {
+      background: linear-gradient(135deg, #f9f4e8, #f0e8d0);
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      border-left: 3px solid var(--gold);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 22px;
+      font-size: 15px;
+      color: #4a3f2a;
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    /* ── Options ── */
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .opt {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 18px;
+      border: 1.5px solid #ddd8cc;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+      font-size: 16px;
+      color: #2a2520;
+      position: relative;
+      user-select: none;
+    }
+
+    .opt:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      transform: translateX(3px);
+    }
+
+    .opt.selected {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 400;
+    }
+
+    .opt.selected .radio-dot {
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 92, 191, 0.2);
+    }
+
+    .opt.selected .check-dot {
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 92, 191, 0.2);
+    }
+
+    .radio-dot,
+    .check-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid #ccc;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .check-dot {
+      border-radius: 5px;
+    }
+
+    .check-dot::after {
+      content: '✓';
+      font-size: 11px;
+      color: white;
+      display: none;
+    }
+
+    .opt.selected .check-dot::after {
+      display: block;
+    }
+
+    .opt.selected .check-dot {
+      border-color: var(--accent);
+    }
+
+    /* ── Text input ── */
+    .text-input {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid #ddd8cc;
+      border-radius: 10px;
+      font-family: 'Crimson Pro', serif;
+      font-size: 17px;
+      color: var(--ink);
+      background: white;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .text-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 92, 191, 0.1);
+    }
+
+    select.text-input {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7570' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+
+    /* ── Reveal fields ── */
+    .field-reveal {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.4s ease, opacity 0.4s ease;
+      opacity: 0;
+    }
+
+    .field-reveal.open {
+      max-height: 200px;
+      opacity: 1;
+    }
+
+    .field-reveal label {
+      font-size: 14px;
+      color: #7a7570;
+      margin-bottom: 8px;
+      margin-top: 14px;
+      display: block;
+    }
+
+    /* ── Navigation ── */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 28px;
+      gap: 12px;
+    }
+
+    .btn {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      padding: 13px 30px;
+      border-radius: 99px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+    }
+
+    .btn-back {
+      background: transparent;
+      color: rgba(245, 240, 232, 0.5);
+      border: 1px solid rgba(245, 240, 232, 0.2);
+    }
+
+    .btn-back:hover {
+      color: rgba(245, 240, 232, 0.8);
+      border-color: rgba(245, 240, 232, 0.4);
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+      color: var(--deep);
+      box-shadow: 0 4px 20px rgba(201, 168, 76, 0.35);
+      font-weight: 700;
+      flex: 1;
+      max-width: 220px;
+    }
+
+    .btn-next:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(201, 168, 76, 0.45);
+    }
+
+    .btn-next:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-next.ready {
+      background: linear-gradient(135deg, var(--gold), #e8c84a);
+      box-shadow: 0 4px 24px rgba(201, 168, 76, 0.55), 0 0 40px rgba(201, 168, 76, 0.25);
+      animation: btnPulse 2s ease-in-out infinite;
+    }
+
+    .btn-next.ready:hover {
+      box-shadow: 0 8px 32px rgba(201, 168, 76, 0.7), 0 0 50px rgba(201, 168, 76, 0.3);
+    }
+
+    @keyframes btnPulse {
+
+      0%,
+      100% {
+        box-shadow: 0 4px 24px rgba(201, 168, 76, 0.55), 0 0 40px rgba(201, 168, 76, 0.25);
+      }
+
+      50% {
+        box-shadow: 0 4px 28px rgba(201, 168, 76, 0.75), 0 0 55px rgba(201, 168, 76, 0.35);
+      }
+    }
+
+    /* ── Thank you screen ── */
+    .thankyou {
+      text-align: center;
+      padding: 60px 20px;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .thankyou .big-glyph {
+      font-size: 72px;
+      display: block;
+      margin-bottom: 24px;
+    }
+
+    .thankyou h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 28px;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .thankyou p {
+      font-size: 18px;
+      color: rgba(245, 240, 232, 0.7);
+      line-height: 1.7;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .q-card {
+        padding: 24px 20px;
+      }
+
+      .q-text {
+        font-size: 17px;
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ── Validation ── */
+    .q-card.invalid {
+      border-color: rgba(201, 120, 76, 0.7);
+      box-shadow: var(--shadow), 0 0 0 2px rgba(201, 120, 76, 0.25);
+      animation: shake 0.45s ease;
+    }
+
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      15% {
+        transform: translateX(-6px);
+      }
+
+      30% {
+        transform: translateX(5px);
+      }
+
+      45% {
+        transform: translateX(-4px);
+      }
+
+      60% {
+        transform: translateX(3px);
+      }
+
+      75% {
+        transform: translateX(-2px);
+      }
+    }
+
+    .q-card .error-msg {
+      display: none;
+      font-size: 13px;
+      color: #c97848;
+      margin-top: 14px;
+      font-style: italic;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .q-card.invalid .error-msg {
+      display: block;
+    }
+
+    .validation-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(30, 24, 50, 0.95);
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      padding: 14px 28px;
+      border-radius: 99px;
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .validation-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Stars -->
+  <div class="stars" id="stars"></div>
+
+  <div class="wrap">
+
+    <!-- Header -->
+    <div class="header">
+      <span class="glyph">🔮</span>
+      <h1>TarotAI</h1>
+      <p class="sub">Kullanıcı Araştırması · 7 dakika</p>
+      <div class="divider">✦</div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span id="prog-label">BÖLÜM 1 / 5</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- STEP 1 — Demografik -->
+    <div id="step-1">
+      <div class="section-label">◈ Bölüm 1 — Tanışalım</div>
+
+      <div class="q-card" style="animation-delay:0.0s">
+        <span class="q-num">SORU 1 / 25</span>
+        <p class="q-text">Yaş aralığınızı bizimle paylaşır mısınız?</p>
+        <div class="options" data-q="q1" data-type="single">
+          <div class="opt" data-v="17-">
+            <div class="radio-dot"></div> 17 ve altı
+          </div>
+          <div class="opt" data-v="18-24">
+            <div class="radio-dot"></div> 18–24
+          </div>
+          <div class="opt" data-v="25-34">
+            <div class="radio-dot"></div> 25–34
+          </div>
+          <div class="opt" data-v="35-44">
+            <div class="radio-dot"></div> 35–44
+          </div>
+          <div class="opt" data-v="45+">
+            <div class="radio-dot"></div> 45 ve üzeri
+          </div>
+        </div>
+        <p class="error-msg">✦ Yaş aralığınızı seçmeyi unutmayın 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.08s">
+        <span class="q-num">SORU 2 / 25</span>
+        <p class="q-text">Cinsiyetinizi belirtmek ister misiniz?</p>
+        <div class="options" data-q="q2" data-type="single">
+          <div class="opt" data-v="kadin">
+            <div class="radio-dot"></div> Kadın
+          </div>
+          <div class="opt" data-v="erkek">
+            <div class="radio-dot"></div> Erkek
+          </div>
+          <div class="opt" data-v="belirtmem">
+            <div class="radio-dot"></div> Belirtmek istemiyorum
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlemeyi unutmayın 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.16s">
+        <span class="q-num">SORU 3 / 25</span>
+        <p class="q-text">Hangi şehirde yaşıyorsunuz?</p>
+        <select class="text-input" id="q3">
+          <option value="" disabled selected>Şehrinizi seçiniz...</option>
+          <option value="Adana">Adana</option>
+          <option value="Adıyaman">Adıyaman</option>
+          <option value="Afyonkarahisar">Afyonkarahisar</option>
+          <option value="Ağrı">Ağrı</option>
+          <option value="Aksaray">Aksaray</option>
+          <option value="Amasya">Amasya</option>
+          <option value="Ankara">Ankara</option>
+          <option value="Antalya">Antalya</option>
+          <option value="Ardahan">Ardahan</option>
+          <option value="Artvin">Artvin</option>
+          <option value="Aydın">Aydın</option>
+          <option value="Balıkesir">Balıkesir</option>
+          <option value="Bartın">Bartın</option>
+          <option value="Batman">Batman</option>
+          <option value="Bayburt">Bayburt</option>
+          <option value="Bilecik">Bilecik</option>
+          <option value="Bingöl">Bingöl</option>
+          <option value="Bitlis">Bitlis</option>
+          <option value="Bolu">Bolu</option>
+          <option value="Burdur">Burdur</option>
+          <option value="Bursa">Bursa</option>
+          <option value="Çanakkale">Çanakkale</option>
+          <option value="Çankırı">Çankırı</option>
+          <option value="Çorum">Çorum</option>
+          <option value="Denizli">Denizli</option>
+          <option value="Diyarbakır">Diyarbakır</option>
+          <option value="Düzce">Düzce</option>
+          <option value="Edirne">Edirne</option>
+          <option value="Elazığ">Elazığ</option>
+          <option value="Erzincan">Erzincan</option>
+          <option value="Erzurum">Erzurum</option>
+          <option value="Eskişehir">Eskişehir</option>
+          <option value="Gaziantep">Gaziantep</option>
+          <option value="Giresun">Giresun</option>
+          <option value="Gümüşhane">Gümüşhane</option>
+          <option value="Hakkari">Hakkari</option>
+          <option value="Hatay">Hatay</option>
+          <option value="Iğdır">Iğdır</option>
+          <option value="Isparta">Isparta</option>
+          <option value="İstanbul">İstanbul</option>
+          <option value="İzmir">İzmir</option>
+          <option value="Kahramanmaraş">Kahramanmaraş</option>
+          <option value="Karabük">Karabük</option>
+          <option value="Karaman">Karaman</option>
+          <option value="Kars">Kars</option>
+          <option value="Kastamonu">Kastamonu</option>
+          <option value="Kayseri">Kayseri</option>
+          <option value="Kilis">Kilis</option>
+          <option value="Kırıkkale">Kırıkkale</option>
+          <option value="Kırklareli">Kırklareli</option>
+          <option value="Kırşehir">Kırşehir</option>
+          <option value="Kocaeli">Kocaeli</option>
+          <option value="Konya">Konya</option>
+          <option value="Kütahya">Kütahya</option>
+          <option value="Malatya">Malatya</option>
+          <option value="Manisa">Manisa</option>
+          <option value="Mardin">Mardin</option>
+          <option value="Mersin">Mersin</option>
+          <option value="Muğla">Muğla</option>
+          <option value="Muş">Muş</option>
+          <option value="Nevşehir">Nevşehir</option>
+          <option value="Niğde">Niğde</option>
+          <option value="Ordu">Ordu</option>
+          <option value="Osmaniye">Osmaniye</option>
+          <option value="Rize">Rize</option>
+          <option value="Sakarya">Sakarya</option>
+          <option value="Samsun">Samsun</option>
+          <option value="Şanlıurfa">Şanlıurfa</option>
+          <option value="Siirt">Siirt</option>
+          <option value="Sinop">Sinop</option>
+          <option value="Şırnak">Şırnak</option>
+          <option value="Sivas">Sivas</option>
+          <option value="Tekirdağ">Tekirdağ</option>
+          <option value="Tokat">Tokat</option>
+          <option value="Trabzon">Trabzon</option>
+          <option value="Tunceli">Tunceli</option>
+          <option value="Uşak">Uşak</option>
+          <option value="Van">Van</option>
+          <option value="Yalova">Yalova</option>
+          <option value="Yozgat">Yozgat</option>
+          <option value="Zonguldak">Zonguldak</option>
+        </select>
+        <p class="error-msg">✦ Şehrinizi seçmeyi unutmayın 🌟</p>
+      </div>
+
+      <div class="nav">
+        <div></div>
+        <button class="btn btn-next" onclick="goTo(2)">Devam Et →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- STEP 2 — Fal Alışkanlıkları -->
+    <div id="step-2" class="hidden">
+      <div class="section-label">◈ Bölüm 2 — Fal Alışkanlıkları</div>
+
+      <div class="q-card" style="animation-delay:0.0s">
+        <span class="q-num">SORU 4 / 25</span>
+        <p class="q-text">Fal veya spiritüel içeriklere ilginiz var mı, merak ediyoruz</p>
+        <div class="options" data-q="q4" data-type="single">
+          <div class="opt" data-v="aktif">
+            <div class="radio-dot"></div> Evet, aktif olarak ilgileniyorum
+          </div>
+          <div class="opt" data-v="ara">
+            <div class="radio-dot"></div> Arada merak ediyorum ama düzenli değil
+          </div>
+          <div class="opt" data-v="pek">
+            <div class="radio-dot"></div> Pek ilgilenmiyorum ama denesem bakabilirim
+          </div>
+          <div class="opt" data-v="hayir">
+            <div class="radio-dot"></div> Hayır, hiç ilgilenmiyorum
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.06s">
+        <span class="q-num">SORU 5 / 25</span>
+        <p class="q-text">Hangi fal türleri sizi heyecanlandırıyor?</p>
+        <p class="q-hint">Birden fazla seçebilirsiniz</p>
+        <div class="options" data-q="q5" data-type="multi">
+          <div class="opt" data-v="kahve">
+            <div class="check-dot"></div> ☕ Kahve falı
+          </div>
+          <div class="opt" data-v="tarot">
+            <div class="check-dot"></div> 🃏 Tarot
+          </div>
+          <div class="opt" data-v="astroloji">
+            <div class="check-dot"></div> ♈ Astroloji / burçlar
+          </div>
+          <div class="opt" data-v="el">
+            <div class="check-dot"></div> 🤲 El falı
+          </div>
+          <div class="opt" data-v="numeroloji">
+            <div class="check-dot"></div> 🔢 Numeroloji
+          </div>
+          <div class="opt" data-v="ruya">
+            <div class="check-dot"></div> 🌙 Rüya yorumu
+          </div>
+          <div class="opt" data-v="diger" data-reveal="q5-diger-reveal">
+            <div class="check-dot"></div> ✏️ Diğer
+          </div>
+        </div>
+        <div class="field-reveal" id="q5-diger-reveal">
+          <label>Hangi fal türü?</label>
+          <input class="text-input" type="text" id="q5-diger-text" placeholder="Yaz..." />
+        </div>
+        <p class="error-msg">✦ En az bir seçenek belirlerseniz çok seviniriz 🌟</p>
+      </div>
+
+      <!-- YENİ SORU: Kullanım Sıklığı -->
+      <div class="q-card" style="animation-delay:0.12s">
+        <span class="q-num">SORU 6 / 25</span>
+        <p class="q-text">Fal baktırmayı ne sıklıkla tercih ediyorsunuz?</p>
+        <div class="options" data-q="q6" data-type="single">
+          <div class="opt" data-v="hergun">
+            <div class="radio-dot"></div> 📅 Hemen her gün
+          </div>
+          <div class="opt" data-v="haftada">
+            <div class="radio-dot"></div> 📆 Haftada 1–2 kez
+          </div>
+          <div class="opt" data-v="ayda">
+            <div class="radio-dot"></div> 🗓️ Ayda birkaç kez
+          </div>
+          <div class="opt" data-v="nadiren">
+            <div class="radio-dot"></div> 🌀 Nadiren, arada bir
+          </div>
+          <div class="opt" data-v="hic">
+            <div class="radio-dot"></div> 🚫 Hiç baktırmadım
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <!-- YENİ SORU: Zamanlama / Tetikleyici -->
+      <div class="q-card" style="animation-delay:0.18s">
+        <span class="q-num">SORU 7 / 25</span>
+        <p class="q-text">Falınıza genellikle hangi anlarda bakmayı seversiniz?</p>
+        <p class="q-hint">Birden fazla seçebilirsiniz</p>
+        <div class="options" data-q="q7" data-type="multi">
+          <div class="opt" data-v="sabah">
+            <div class="check-dot"></div> 🌅 Sabah güne başlarken
+          </div>
+          <div class="opt" data-v="gece">
+            <div class="check-dot"></div> 🌙 Gece yatmadan önce
+          </div>
+          <div class="opt" data-v="stres">
+            <div class="check-dot"></div> 😰 Stresli veya kararsız hissettiğimde
+          </div>
+          <div class="opt" data-v="can-sikintisi">
+            <div class="check-dot"></div> 😴 Canım sıkılınca
+          </div>
+          <div class="opt" data-v="karar">
+            <div class="check-dot"></div> ⚖️ Önemli kararlar öncesi
+          </div>
+        </div>
+        <p class="error-msg">✦ En az bir seçenek belirlerseniz çok seviniriz 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.24s">
+        <span class="q-num">SORU 8 / 25</span>
+        <p class="q-text">Daha önce fal için ödeme yaptığınız oldu mu?</p>
+        <div class="options" data-q="q8" data-type="single">
+          <div class="opt" data-v="duzenli">
+            <div class="radio-dot"></div> Evet, düzenli ödüyorum
+          </div>
+          <div class="opt" data-v="birkac">
+            <div class="radio-dot"></div> Evet, birkaç kez ödedim
+          </div>
+          <div class="opt" data-v="hayir-dusunurum">
+            <div class="radio-dot"></div> Hayır ama ödemeyi düşünürdüm
+          </div>
+          <div class="opt" data-v="hayir-odemem">
+            <div class="radio-dot"></div> Hayır ve ödemem
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.30s" id="q9-card">
+        <span class="q-num">SORU 9 / 25</span>
+        <p class="q-text">Fal için aylık yaklaşık ne kadar bütçe ayırıyorsunuz?</p>
+        <div class="options" data-q="q9" data-type="single">
+          <div class="opt" data-v="0-100">
+            <div class="radio-dot"></div> ₺0 – 100
+          </div>
+          <div class="opt" data-v="100-300">
+            <div class="radio-dot"></div> ₺100 – 300
+          </div>
+          <div class="opt" data-v="300-500">
+            <div class="radio-dot"></div> ₺300 – 500
+          </div>
+          <div class="opt" data-v="500+">
+            <div class="radio-dot"></div> ₺500+
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.36s">
+        <span class="q-num">SORU 10 / 25</span>
+        <p class="q-text">Şu an falınızı nereden baktırmayı tercih ediyorsunuz?</p>
+        <p class="q-hint">Birden fazla seçebilirsiniz</p>
+        <div class="options" data-q="q10" data-type="multi">
+          <div class="opt" data-v="falci">
+            <div class="check-dot"></div> 🧿 Profesyonel falcıya gidiyorum
+          </div>
+          <div class="opt" data-v="sosyal">
+            <div class="check-dot"></div> 📱 Instagram / TikTok'ta takip ettiğim biri
+          </div>
+          <div class="opt" data-v="uygulama">
+            <div class="check-dot"></div> 📲 Uygulama kullanıyorum
+          </div>
+          <div class="opt" data-v="arkadas">
+            <div class="check-dot"></div> 👯 Arkadaşlarımla bakıyoruz
+          </div>
+          <div class="opt" data-v="diger" data-reveal="q10-diger-reveal">
+            <div class="check-dot"></div> ✏️ Diğer
+          </div>
+          <div class="opt" data-v="hicbiri">
+            <div class="check-dot"></div> — Hiçbirini yapmıyorum
+          </div>
+        </div>
+        <div class="field-reveal" id="q10-diger-reveal">
+          <label>Nereden?</label>
+          <input class="text-input" type="text" id="q10-diger-text" placeholder="Yaz..." />
+        </div>
+        <p class="error-msg">✦ En az bir seçenek belirlerseniz çok seviniriz 🌟</p>
+      </div>
+
+      <div class="nav">
+        <button class="btn btn-back" onclick="goTo(1)">← Geri</button>
+        <button class="btn btn-next" onclick="goTo(3)">Devam Et →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- STEP 3 — Uygulama Konsepti -->
+    <div id="step-3" class="hidden">
+      <div class="section-label">◈ Bölüm 3 — Uygulama Konsepti</div>
+
+      <!-- Rakip Deneyimi -->
+      <div class="q-card" style="animation-delay:0.0s">
+        <span class="q-num">SORU 11 / 25</span>
+        <p class="q-text">Daha önce bir fal uygulaması kullandınız mı?</p>
+        <div class="options" data-q="q11" data-type="single">
+          <div class="opt" data-v="memnun">
+            <div class="radio-dot"></div> 😊 Kullandım, memnun kaldım
+          </div>
+          <div class="opt" data-v="begenmedim">
+            <div class="radio-dot"></div> 😕 Kullandım ama beğenmedim
+          </div>
+          <div class="opt" data-v="merak">
+            <div class="radio-dot"></div> 🤔 Hiç denemedim ama merak ediyorum
+          </div>
+          <div class="opt" data-v="hic">
+            <div class="radio-dot"></div> 🚫 Hiç denemedim, ilgimi çekmiyor
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.06s">
+        <div class="info-box">
+          🃏 Size bir uygulama fikri anlatacağız: Tarot kartlarını siz çekiyorsunuz, yapay zeka size özel Türkçe yorum
+          yapıyor. Aşk, kariyer, genel sorular — istediğiniz konuyu sorabiliyorsunuz.
+        </div>
+        <span class="q-num">SORU 12 / 25</span>
+        <p class="q-text">Bu fikri duyunca ilk tepkiniz ne olurdu?</p>
+        <div class="options" data-q="q12" data-type="single">
+          <div class="opt" data-v="hemen">
+            <div class="radio-dot"></div> 🙌 Hemen indiririm
+          </div>
+          <div class="opt" data-v="ilginc">
+            <div class="radio-dot"></div> 🤔 İlginç, deneyebilirim
+          </div>
+          <div class="opt" data-v="emin-degil">
+            <div class="radio-dot"></div> 😐 Emin değilim, görmem lazım
+          </div>
+          <div class="opt" data-v="ilgimi-cekmez">
+            <div class="radio-dot"></div> 🙅 İlgimi çekmiyor
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.12s">
+        <span class="q-num">SORU 13 / 25</span>
+        <p class="q-text">Hangi özellik sizi en çok heyecanlandırır?</p>
+        <p class="q-hint">En fazla 2 seçebilirsiniz</p>
+        <div class="options" data-q="q13" data-type="multi" data-max="2">
+          <div class="opt" data-v="gunluk">
+            <div class="check-dot"></div> 🌅 Günlük tek kart çekimi ve yorumu
+          </div>
+          <div class="opt" data-v="ask">
+            <div class="check-dot"></div> 💕 Aşk & ilişki odaklı açılımlar
+          </div>
+          <div class="opt" data-v="kariyer">
+            <div class="check-dot"></div> 💼 Kariyer ve karar anları için fal
+          </div>
+          <div class="opt" data-v="ai-kisisel">
+            <div class="check-dot"></div> 🤖 Yapay zekanın bana özel yorum üretmesi
+          </div>
+          <div class="opt" data-v="canli-falci">
+            <div class="check-dot"></div> 🔮 Gerçek falcıyla uygulama üzerinden chat
+          </div>
+          <div class="opt" data-v="arsiv">
+            <div class="check-dot"></div> 📖 Geçmiş fallarımı kaydedip takip etmek
+          </div>
+        </div>
+        <p class="error-msg">✦ En az bir seçenek belirlerseniz çok seviniriz 🌟</p>
+      </div>
+
+      <!-- YENİ SORU: Kişiselleştirme -->
+      <div class="q-card" style="animation-delay:0.18s">
+        <span class="q-num">SORU 14 / 25</span>
+        <p class="q-text">Uygulamanın sizi daha yakından tanıması (burcunuz, doğum bilgileriniz gibi) ve buna göre
+          kişiye
+          özel yorum sunması sizin için ne kadar değerli?</p>
+        <div class="options" data-q="q14" data-type="single">
+          <div class="opt" data-v="cok-onemli">
+            <div class="radio-dot"></div> 🌟 Çok önemli, bana özel hissettirmeli
+          </div>
+          <div class="opt" data-v="guzel-olur">
+            <div class="radio-dot"></div> 👍 Güzel olur ama şart değil
+          </div>
+          <div class="opt" data-v="farketmez">
+            <div class="radio-dot"></div> 🤷 Farketmez
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.24s">
+        <span class="q-num">SORU 15 / 25</span>
+        <p class="q-text">Ücretsiz versiyonunu denemek ister miydiniz?</p>
+        <p class="q-hint">Günde 1 kart çekimi, reklam var</p>
+        <div class="options" data-q="q15" data-type="single">
+          <div class="opt" data-v="evet">
+            <div class="radio-dot"></div> ✅ Evet, hemen indirirdim
+          </div>
+          <div class="opt" data-v="belki">
+            <div class="radio-dot"></div> 🤷 Belki, bir bakardım
+          </div>
+          <div class="opt" data-v="hayir">
+            <div class="radio-dot"></div> ❌ Muhtemelen hayır
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <!-- YENİ SORU: Ödeme Modeli Tercihi -->
+      <div class="q-card" style="animation-delay:0.30s">
+        <span class="q-num">SORU 16 / 25</span>
+        <p class="q-text">Ödeme modeli olarak hangisi size daha çok uyar?</p>
+        <div class="options" data-q="q16" data-type="single">
+          <div class="opt" data-v="aylik">
+            <div class="radio-dot"></div> 📅 Aylık abonelik — sınırsız kullanım
+          </div>
+          <div class="opt" data-v="jeton">
+            <div class="radio-dot"></div> 🎟️ Çekim başı ödeme (jeton sistemi)
+          </div>
+          <div class="opt" data-v="yillik">
+            <div class="radio-dot"></div> 💎 Yıllık indirimli paket
+          </div>
+          <div class="opt" data-v="reklam">
+            <div class="radio-dot"></div> 📺 Reklam izle → bedava çekim kazan
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.36s">
+        <span class="q-num">SORU 17 / 25</span>
+        <p class="q-text">Sınırsız özelliklere erişim için aylık ne kadar bütçe ayırmayı düşünürsünüz?</p>
+        <div class="options" data-q="q17" data-type="single">
+          <div class="opt" data-v="hic">
+            <div class="radio-dot"></div> 🚫 Hiç ödemem, ücretsiz olmak zorunda
+          </div>
+          <div class="opt" data-v="49">
+            <div class="radio-dot"></div> ₺49'a kadar
+          </div>
+          <div class="opt" data-v="99">
+            <div class="radio-dot"></div> ₺99'a kadar
+          </div>
+          <div class="opt" data-v="149">
+            <div class="radio-dot"></div> ₺149'a kadar
+          </div>
+          <div class="opt" data-v="199">
+            <div class="radio-dot"></div> ₺199'a kadar
+          </div>
+          <div class="opt" data-v="199+">
+            <div class="radio-dot"></div> ₺199 üzeri de olur
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <div class="nav">
+        <button class="btn btn-back" onclick="goTo(2)">← Geri</button>
+        <button class="btn btn-next" onclick="goTo(4)">Devam Et →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- STEP 4 — Güven & Kaygılar -->
+    <div id="step-4" class="hidden">
+      <div class="section-label">◈ Bölüm 4 — Güven ve Kaygılar</div>
+
+      <div class="q-card" style="animation-delay:0.0s">
+        <span class="q-num">SORU 18 / 25</span>
+        <p class="q-text">Yapay zekanın hazırladığı yorumlara ne kadar güven duyarsınız?</p>
+        <div class="options" data-q="q18" data-type="single">
+          <div class="opt" data-v="tam">
+            <div class="radio-dot"></div> 🌟 Gerçek bir falcı kadar güvenirim
+          </div>
+          <div class="opt" data-v="eglence">
+            <div class="radio-dot"></div> 😄 Eğlence amaçlı bakarım, tam güvenmem
+          </div>
+          <div class="opt" data-v="pek">
+            <div class="radio-dot"></div> 🤨 Pek güvenmem ama denerim
+          </div>
+          <div class="opt" data-v="hayir">
+            <div class="radio-dot"></div> ❌ Güvenmem, makine yapıyor
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.08s">
+        <span class="q-num">SORU 19 / 25</span>
+        <p class="q-text">Böyle bir uygulamayla ilgili sizi en çok neler düşündürür?</p>
+        <p class="q-hint">Birden fazla seçebilirsiniz</p>
+        <div class="options" data-q="q19" data-type="multi">
+          <div class="opt" data-v="gizlilik">
+            <div class="check-dot"></div> 🔐 Kişisel bilgilerimin güvende olup olmadığı
+          </div>
+          <div class="opt" data-v="generik">
+            <div class="check-dot"></div> 🤖 Yorumların herkese aynı olması
+          </div>
+          <div class="opt" data-v="dini">
+            <div class="check-dot"></div> 🕌 Dini açıdan doğru bir şey mi
+          </div>
+          <div class="opt" data-v="fiyat">
+            <div class="check-dot"></div> 💸 Para ödemek ve değmemesi
+          </div>
+          <div class="opt" data-v="hicbiri">
+            <div class="check-dot"></div> ✨ Hiçbiri, endişem yok
+          </div>
+        </div>
+        <p class="error-msg">✦ En az bir seçenek belirlerseniz çok seviniriz 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.16s">
+        <span class="q-num">SORU 20 / 25</span>
+        <p class="q-text">Dini veya kültürel açıdan fal baktırma konusunda herhangi bir tereddütünüz var mı?</p>
+        <div class="options" data-q="q20" data-type="single">
+          <div class="opt" data-v="hayir">
+            <div class="radio-dot"></div> 🙅 Hayır, hiç sorun görmüyorum
+          </div>
+          <div class="opt" data-v="biraz">
+            <div class="radio-dot"></div> 🤔 Biraz çekingenim ama yine de bakıyorum
+          </div>
+          <div class="opt" data-v="evet-pek">
+            <div class="radio-dot"></div> 😬 Evet, bu yüzden pek bakmıyorum
+          </div>
+          <div class="opt" data-v="evet-kullanmam">
+            <div class="radio-dot"></div> ❌ Evet ve bu yüzden bu uygulamayı kullanmam
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <div class="nav">
+        <button class="btn btn-back" onclick="goTo(3)">← Geri</button>
+        <button class="btn btn-next" onclick="goTo(5)">Devam Et →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- STEP 5 — Son -->
+    <div id="step-5" class="hidden">
+      <div class="section-label">◈ Bölüm 5 — Son Sorular</div>
+
+      <!-- Bildirim Tercihi -->
+      <div class="q-card" style="animation-delay:0.0s">
+        <span class="q-num">SORU 21 / 25</span>
+        <p class="q-text">Burcunuza göre günlük bildirim almayı sever misiniz?</p>
+        <div class="options" data-q="q21" data-type="single">
+          <div class="opt" data-v="evet">
+            <div class="radio-dot"></div> 🔔 Evet, kesinlikle isterim
+          </div>
+          <div class="opt" data-v="onemli-gunler">
+            <div class="radio-dot"></div> 📌 Sadece önemli günlerde (dolunay, retrograd vb.)
+          </div>
+          <div class="opt" data-v="hayir">
+            <div class="radio-dot"></div> 🔕 Hayır, bildirim istemiyorum
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <!-- İsim Önerisi -->
+      <div class="q-card" style="animation-delay:0.08s">
+        <span class="q-num">SORU 22 / 25</span>
+        <p class="q-text">Bu uygulamaya siz isim koysaydınız ne olurdu?</p>
+        <p class="q-hint">Aklınıza gelen ilk ismi yazın, Türkçe veya İngilizce fark etmez ✨</p>
+        <input class="text-input" type="text" id="q22-isim-text" placeholder="Örn: TarotAI" />
+      </div>
+
+      <div class="q-card" style="animation-delay:0.16s">
+        <span class="q-num">SORU 23 / 25</span>
+        <p class="q-text">Böyle bir uygulamada olmasını çok istediğiniz bir özellik veya öneriniz var mı?</p>
+        <p class="q-hint">İstediğiniz kadar yazın, her fikir çok değerli 💬</p>
+        <textarea class="text-input" id="q23-oneri-text" rows="3" placeholder="Önerinizi yazın..."></textarea>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.24s">
+        <span class="q-num">SORU 24 / 25</span>
+        <p class="q-text">Bu uygulamayı sevdiklerinize tavsiye eder miydiniz?</p>
+        <div class="options" data-q="q24" data-type="single">
+          <div class="opt" data-v="kesinlikle">
+            <div class="radio-dot"></div> 🚀 Kesinlikle öneririm
+          </div>
+          <div class="opt" data-v="belki">
+            <div class="radio-dot"></div> 🤷 Belki öneririm
+          </div>
+          <div class="opt" data-v="onermem">
+            <div class="radio-dot"></div> 🙅 Önermem
+          </div>
+        </div>
+        <p class="error-msg">✦ Bir seçenek belirlerseniz harika olur 🌟</p>
+      </div>
+
+      <div class="q-card" style="animation-delay:0.32s">
+        <span class="q-num">SORU 25 / 25</span>
+        <p class="q-text">Beta testimize katılarak aramızda olmak ister misiniz?</p>
+        <p class="q-hint">Erken erişim + ücretsiz premium süre hediye edeceğiz ✨</p>
+        <div class="options" data-q="q25" data-type="single">
+          <div class="opt" data-v="evet" id="beta-yes">
+            <div class="radio-dot"></div> 🌟 Evet, katılmak istiyorum!
+          </div>
+          <div class="opt" data-v="hayir">
+            <div class="radio-dot"></div> Hayır, teşekkürler
+          </div>
+        </div>
+        <div class="field-reveal" id="email-reveal">
+          <label>E-posta adresiniz:</label>
+          <input class="text-input" type="email" id="q25-email" placeholder="ornek@email.com" />
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn btn-back" onclick="goTo(4)">← Geri</button>
+        <button class="btn btn-next" onclick="submit()" id="submit-btn">Gönder 🔮</button>
+      </div>
+    </div>
+
+    <!-- Thank You -->
+    <div id="thankyou" class="hidden">
+      <div class="thankyou">
+        <span class="big-glyph">✨</span>
+        <h2>Teşekkürler!</h2>
+        <p id="thankyou-msg">Yanıtların TarotAI'yi şekillendirmeye yardım etti.</p>
+      </div>
+    </div>
+
+    <!-- Validation Toast -->
+    <div class="validation-toast" id="validation-toast">✦ Birkaç soru sizi bekliyor, hepsini yanıtlayabilir misiniz?
+    </div>
+  </div>
+
+  <script>
+    // ── Stars
+    const starsEl = document.getElementById('stars');
+    for (let i = 0; i < 90; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = Math.random() * 2.5 + 0.5;
+      s.style.cssText = `
+    width:${size}px; height:${size}px;
+    top:${Math.random() * 100}%; left:${Math.random() * 100}%;
+    --d:${(Math.random() * 4 + 2).toFixed(1)}s;
+    --o:${(Math.random() * 0.6 + 0.1).toFixed(2)};
+    animation-delay:${(Math.random() * 5).toFixed(1)}s;
+  `;
+      starsEl.appendChild(s);
+    }
+
+    // ── State
+    const answers = {};
+    let currentStep = 1;
+    const TOTAL_STEPS = 5;
+    const STEP_QUESTIONS = { 1: 3, 2: 7, 3: 7, 4: 3, 5: 5 };
+
+    function updateProgress() {
+      let done = 0;
+      for (let s = 1; s < currentStep; s++) done += STEP_QUESTIONS[s];
+      const total = Object.values(STEP_QUESTIONS).reduce((a, b) => a + b, 0);
+      const pct = Math.round((done / total) * 100);
+      document.getElementById('prog-fill').style.width = pct + '%';
+      document.getElementById('prog-pct').textContent = pct + '%';
+      const labels = [
+        '1 / 5 — Tanışalım',
+        '2 / 5 — Fal Alışkanlıkları',
+        '3 / 5 — Uygulama Konsepti',
+        '4 / 5 — Güven & Kaygılar',
+        '5 / 5 — Son'
+      ];
+      document.getElementById('prog-label').textContent = 'BÖLÜM ' + labels[currentStep - 1];
+    }
+
+    function goTo(step) {
+      // Only validate when going forward
+      if (step > currentStep) {
+        if (!validateStep(currentStep)) return;
+      }
+      document.getElementById('step-' + currentStep).classList.add('hidden');
+      currentStep = step;
+      document.getElementById('step-' + currentStep).classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      updateProgress();
+    }
+
+    // ── Validation
+    function getStepQuestions(step) {
+      const stepEl = document.getElementById('step-' + step);
+      if (!stepEl) return [];
+      const questions = [];
+
+      // Option-based questions
+      stepEl.querySelectorAll('.options').forEach(group => {
+        const q = group.dataset.q;
+        const type = group.dataset.type;
+        const card = group.closest('.q-card');
+
+        // Skip Q9 if Q8 = hayir-odemem
+        if (q === 'q9' && answers['q8'] === 'hayir-odemem') return;
+
+        questions.push({ type: 'options', q, optionType: type, card, group });
+      });
+
+      // Select dropdowns
+      stepEl.querySelectorAll('select.text-input').forEach(sel => {
+        const card = sel.closest('.q-card');
+        questions.push({ type: 'select', el: sel, card });
+      });
+
+      return questions;
+    }
+
+    function validateStep(step) {
+      const questions = getStepQuestions(step);
+      let allValid = true;
+      let firstInvalid = null;
+
+      // Clear previous invalid states in this step
+      const stepEl = document.getElementById('step-' + step);
+      stepEl.querySelectorAll('.q-card.invalid').forEach(c => c.classList.remove('invalid'));
+
+      questions.forEach(q => {
+        let isValid = true;
+
+        if (q.type === 'options') {
+          const selected = q.group.querySelectorAll('.opt.selected');
+          if (selected.length === 0) isValid = false;
+        } else if (q.type === 'select') {
+          if (!q.el.value) isValid = false;
+        }
+
+        if (!isValid) {
+          allValid = false;
+          q.card.classList.add('invalid');
+          // Re-trigger shake animation
+          q.card.style.animation = 'none';
+          q.card.offsetHeight; // force reflow
+          q.card.style.animation = '';
+          if (!firstInvalid) firstInvalid = q.card;
+        }
+      });
+
+      if (!allValid && firstInvalid) {
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showToast();
+      }
+
+      return allValid;
+    }
+
+    function showToast() {
+      const toast = document.getElementById('validation-toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // Clear invalid state when user interacts
+    document.querySelectorAll('.opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const card = opt.closest('.q-card');
+        if (card) card.classList.remove('invalid');
+        setTimeout(checkStepComplete, 50);
+      });
+    });
+    document.querySelectorAll('select.text-input').forEach(sel => {
+      sel.addEventListener('change', () => {
+        const card = sel.closest('.q-card');
+        if (card) card.classList.remove('invalid');
+        setTimeout(checkStepComplete, 50);
+      });
+    });
+
+    // ── Check if current step is fully answered
+    function checkStepComplete() {
+      const stepEl = document.getElementById('step-' + currentStep);
+      if (!stepEl) return;
+      const btn = stepEl.querySelector('.btn-next');
+      if (!btn) return;
+
+      const questions = getStepQuestions(currentStep);
+      let allDone = true;
+
+      questions.forEach(q => {
+        if (q.type === 'options') {
+          if (q.group.querySelectorAll('.opt.selected').length === 0) allDone = false;
+        } else if (q.type === 'select') {
+          if (!q.el.value) allDone = false;
+        }
+      });
+
+      btn.classList.toggle('ready', allDone);
+    }
+
+    // ── Option click handlers
+    document.querySelectorAll('.options').forEach(group => {
+      const type = group.dataset.type;
+      const q = group.dataset.q;
+      const max = group.dataset.max ? parseInt(group.dataset.max) : Infinity;
+
+      group.querySelectorAll('.opt').forEach(opt => {
+        opt.addEventListener('click', () => {
+          const val = opt.dataset.v;
+          if (type === 'single') {
+            group.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            answers[q] = val;
+
+            // Q8 logic: hide Q9 only if "hayir-odemem"
+            if (q === 'q8') {
+              const q9 = document.getElementById('q9-card');
+              if (val === 'hayir-odemem') {
+                q9.style.opacity = '0.4';
+                q9.style.pointerEvents = 'none';
+              } else {
+                q9.style.opacity = '1';
+                q9.style.pointerEvents = '';
+              }
+            }
+
+            // Q25 beta email reveal
+            if (q === 'q25') {
+              const reveal = document.getElementById('email-reveal');
+              reveal.classList.toggle('open', val === 'evet');
+            }
+
+          } else {
+            // multi
+            const selected = group.querySelectorAll('.opt.selected');
+            if (opt.classList.contains('selected')) {
+              opt.classList.remove('selected');
+            } else {
+              if (selected.length < max) {
+                opt.classList.add('selected');
+              } else if (max < Infinity) {
+                // deselect first
+                selected[0].classList.remove('selected');
+                opt.classList.add('selected');
+              } else {
+                opt.classList.add('selected');
+              }
+            }
+            answers[q] = Array.from(group.querySelectorAll('.opt.selected')).map(o => o.dataset.v);
+
+            // "Diğer" text field reveal for multi-selects
+            const revealId = opt.dataset.reveal;
+            if (revealId) {
+              const revealEl = document.getElementById(revealId);
+              if (revealEl) {
+                revealEl.classList.toggle('open', opt.classList.contains('selected'));
+              }
+            }
+          }
+        });
+      });
+    });
+
+    async function submit() {
+      // Validate step 5 first
+      if (!validateStep(5)) return;
+
+      const submitBtn = document.getElementById('submit-btn');
+      const emailInput = document.getElementById('q25-email');
+      const q3Input = document.getElementById('q3');
+
+      // Beta seçildiyse email kontrolü
+      if (answers['q25'] === 'evet' && !emailInput.value) {
+        emailInput.focus();
+        emailInput.style.borderColor = '#c97848';
+        const card = emailInput.closest('.q-card');
+        card.classList.add('invalid');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showToast();
+        return;
+      }
+
+      // Butonu kilitle (Çift tıklamayı önle)
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Yazılıyor... 🔮";
+
+      // Tüm veriyi tek bir objede topla
+      const finalData = {
+        "timestamp": new Date().toLocaleString('tr-TR'),
+        "q1": answers.q1 || "",
+        "q2": answers.q2 || "",
+        "q3": q3Input ? q3Input.value : "",
+        "q4": answers.q4 || "",
+        "q5": Array.isArray(answers.q5) ? answers.q5.join(', ') : (answers.q5 || ""),
+        "q5_diger": document.getElementById('q5-diger-text').value || "",
+        "q6": answers.q6 || "",
+        "q7": Array.isArray(answers.q7) ? answers.q7.join(', ') : (answers.q7 || ""),
+        "q8": answers.q8 || "",
+        "q9": answers.q9 || "",
+        "q10": Array.isArray(answers.q10) ? answers.q10.join(', ') : (answers.q10 || ""),
+        "q10_diger": document.getElementById('q10-diger-text').value || "",
+        "q11": answers.q11 || "",
+        "q12": answers.q12 || "",
+        "q13": Array.isArray(answers.q13) ? answers.q13.join(', ') : (answers.q13 || ""),
+        "q14": answers.q14 || "",
+        "q15": answers.q15 || "",
+        "q16": answers.q16 || "",
+        "q17": answers.q17 || "",
+        "q18": answers.q18 || "",
+        "q19": Array.isArray(answers.q19) ? answers.q19.join(', ') : (answers.q19 || ""),
+        "q20": answers.q20 || "",
+        "q21": answers.q21 || "",
+        "q22_isim": document.getElementById('q22-isim-text').value || "",
+        "q23_oneri": document.getElementById('q23-oneri-text').value || "",
+        "q24": answers.q24 || "",
+        "q25": answers.q25 || "",
+        "email": emailInput.value || ""
+      };
+
+      try {
+        // BURAYA GOOGLE APPS SCRIPT'TEN ALDIĞIN URL'Yİ YAPIŞTIR
+        const scriptURL = "https://script.google.com/macros/s/AKfycbxMec210Atl5rq3tOWGVDX0PiHpSeCsd663dQa1JhTGqRaPUove4znmT8LOYjxlrEFh/exec";
+
+        await fetch(scriptURL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(finalData)
+        });
+
+        // Başarılıysa ekranı değiştir
+        document.getElementById('step-5').classList.add('hidden');
+        document.getElementById('thankyou').classList.remove('hidden');
+
+        // Dynamic thank you message
+        const msgEl = document.getElementById('thankyou-msg');
+        if (answers['q25'] === 'evet') {
+          msgEl.textContent = 'Yanıtların TarotAI\'yi şekillendirmeye yardım etti. Beta lansmanında seni haberdar edeceğiz. ✨';
+        } else {
+          msgEl.textContent = 'Yanıtların TarotAI\'yi şekillendirmeye yardım etti. Zaman ayırdığın için teşekkürler! 🙏';
+        }
+
+        document.getElementById('prog-fill').style.width = '100%';
+        document.getElementById('prog-pct').textContent = '100%';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      } catch (error) {
+        console.error("Hata:", error);
+        alert("Bağlantı hatası oluştu. Lütfen tekrar deneyin.");
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Gönder 🔮";
+      }
+    }
+
+    updateProgress();
+  </script>
+</body>
+
+</html>
